@@ -340,7 +340,7 @@ module JSS
     def hostname
       return @server_host if @server_host
       srvr = JSS::CONFIG.api_server_name
-      srvr ||= JSS::Client.jss_server
+      srvr ||= JSS::Client.jss_server if JSS::Client.installed?
       srvr
     end
 
@@ -373,9 +373,11 @@ module JSS
       args[:verify_cert] = JSS::CONFIG.api_verify_cert if args[:verify_cert].nil?
 
       # these settings can come from the jamf binary config, if this machine is a JSS client.
-      args[:server] ||= JSS::Client.jss_server
-      args[:port] ||= JSS::Client.jss_port
-      args[:use_ssl] ||= JSS::Client.jss_protocol.end_with? 's'
+      if JSS::Client.installed?
+        args[:server] ||= JSS::Client.jss_server
+        args[:port] ||= JSS::Client.jss_port
+        args[:use_ssl] ||= JSS::Client.jss_protocol.end_with? 's'
+      end
 
       # defaults from the module if needed
       args[:port] ||= args[:use_ssl] ? SSL_PORT : HTTP_PORT
